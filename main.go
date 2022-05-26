@@ -9,12 +9,12 @@ var logger *logrus.Logger
 var rabbitmq *amqp.Connection
 
 func failOnError(err error, msg string) {
-	if err != nil {
+    if err != nil {
         field := map[string]interface{}{
             "error_msg": err,
         }
         createLog(logger, "Info", msg, field)
-	}
+    }
 }
 
 func main() {
@@ -52,20 +52,20 @@ func readMessage() {
         false,
         nil,
     )
-	failOnError(err, "Failed to declare a queue")
+    failOnError(err, "Failed to declare a queue")
 
     msgs, err := ch.Consume(
-		queue.Name, // queue
-		"",     // consumer
-		true,   // auto-ack
-		false,  // exclusive
-		false,  // no-local
-		false,  // no-wait
-		nil,    // args
-	)
-	failOnError(err, "Failed to register a consumer")
+        queue.Name, // queue
+        "",     // consumer
+        true,   // auto-ack
+        false,  // exclusive
+        false,  // no-local
+        false,  // no-wait
+        nil,    // args
+    )
+    failOnError(err, "Failed to register a consumer")
 
     for msg := range msgs {
-		
-	}
+        
+    }
 }
