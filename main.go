@@ -10,14 +10,15 @@ var rabbitmq *amqp.Connection
 
 func failOnError(err error, msg string) {
 	if err != nil {
-        field = map[string]interface{}{
-            "error": err,
+        field := map[string]interface{}{
+            "error_msg": err,
         }
         createLog(logger, "Info", msg, field)
 	}
 }
 
 func main() {
+    MigrateDB()
     logger = initLogger()
     rabbitmq = initRabbitMQ()
 
@@ -49,7 +50,7 @@ func readMessage() {
         false,
         true,
         false,
-        nil
+        nil,
     )
 	failOnError(err, "Failed to declare a queue")
 
