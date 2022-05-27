@@ -1,0 +1,6 @@
+version: "3"
+services:
+  request-manager:
+    build: .
+    volumes:
+      - "./data.db:/app/osmium/data.db"
