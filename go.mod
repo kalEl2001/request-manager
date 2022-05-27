@@ -5,6 +5,7 @@ go 1.18
 require (
 	github.com/bshuster-repo/logrus-logstash-hook v1.0.2
 	github.com/google/uuid v1.3.0
+	github.com/joho/godotenv v1.4.0
 	github.com/rabbitmq/amqp091-go v1.3.4
 	github.com/sirupsen/logrus v1.8.1
 	gorm.io/driver/sqlite v1.3.2
