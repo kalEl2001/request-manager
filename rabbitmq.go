@@ -112,17 +112,25 @@ func publishMessage(route string, body map[string]interface{}, corrId uint) {
     errorLog(err, "Failed to publish message")
 }
 
+func getDownloadFolder() string {
+    ret := os.Getenv("OSMIUM_DOWNLOAD_FOLDER")
+    if len(ret) == 0 {
+        return "/osmium/result/"
+    }
+    return ret
+}
+
 func createDownloadJobMessage(slug string, link string, fileId uint) {
     body := map[string]interface{}{
         "url": link,
-        "folder_out": "/osmium/result/" + slug,
+        "folder_out": getDownloadFolder() + slug,
     }
     publishMessage("downloader_queue", body, fileId)
 }
 
 func createCompressJobMessage(slug string, reqId uint) {
     body := map[string]interface{}{
-        "folder": "/osmium/result/" + slug,
+        "folder": getDownloadFolder() + slug,
     }
     publishMessage("compressor_queue", body, reqId)
 }
