@@ -31,7 +31,7 @@ func createRequest(body map[string]interface{}) {
 	for _, val := range req.Files {
 		createDownloadJobMessage(req.Slug, val.Link, val.ID)
 	}
-	updateStatusFileProvider(req.ID, "update_progress", "Starting to download...")
+	updateStatusFileProvider(req.ID, "create", req.User)
 }
 
 func downloadResponse(id int) {

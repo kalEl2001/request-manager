@@ -135,15 +135,17 @@ func createCompressJobMessage(slug string, reqId uint) {
     publishMessage("compressor_queue", body, reqId)
 }
 
-func updateStatusFileProvider(id uint, props string, data string) {
+func updateStatusFileProvider(id uint, queryType string, data string) {
     body := map[string]interface{}{
-        "properties": props,
+        "query_type": queryType,
         "id": id,
     }
-    if props == "update_progress" {
+    if queryType == "update_progress" {
         body["progress"] = data
-    } else if props == "update_url" {
+    } else if queryType == "update_url" {
         body["url"] = data
+    } else if queryType == "create" {
+        body["user_code"] = data
     }
     publishMessage("provider_queue", body, 0)
 }
