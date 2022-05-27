@@ -50,7 +50,7 @@ func downloadResponse(id int) {
 
 	updateString := fmt.Sprintf("%d of %d file(s) downloaded", req.NumFiles - req.Status, req.NumFiles)
 	updateStatusFileProvider(req.ID, "update_progress", updateString)
-	if req.status == 0 {
+	if req.Status == 0 {
 		createCompressJobMessage(req.Slug, req.ID)
 		updateStatusFileProvider(req.ID, "update_progress", "Compressing...")
 	}

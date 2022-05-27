@@ -92,7 +92,7 @@ func readMessage() {
     }
 }
 
-func publishMessage(route string, body map[string]interface{}, corrId int) {
+func publishMessage(route string, body map[string]interface{}, corrId uint) {
     ch := rabbitChannel
     bodyJson, err := json.Marshal(body)
     errorLog(err, "Failed to convert map to json")
@@ -104,7 +104,7 @@ func publishMessage(route string, body map[string]interface{}, corrId int) {
         false,  // immediate
         amqp.Publishing {
             ContentType: "application/json",
-            CorrelationId: strconv.Itoa(corrId),
+            CorrelationId: strconv.FormatUint(uint64(corrId), 10),
             Body:        bodyJson,
         },
     )
