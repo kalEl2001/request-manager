@@ -12,6 +12,7 @@ type Request struct {
 	Slug string
 	Status int
 	NumFiles int
+	OutputPath string
 	Files []FileQueue `gorm:"foreignKey:RequestId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 

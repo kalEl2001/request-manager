@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+    "strconv"
 	amqp "github.com/rabbitmq/amqp091-go"
 )
 
@@ -73,9 +74,13 @@ func readMessage() {
         if requestType == "create" {
             createRequest(parseMessageBody(msg))
         } else if requestType == "download" {
-            infoLog("Download request", nil)
+            corrId, err := strconv.Atoi(msg.CorrelationId)
+            errorLog(err, "Cannot convert correlationId to integer")
+            downloadResponse(corrId)
         } else if requestType == "compress" {
-            infoLog("Compress request", nil)
+            corrId, err := strconv.Atoi(msg.CorrelationId)
+            errorLog(err, "Cannot convert correlationId to integer")
+            compressResponse(corrId, parseMessageBody(msg))
         } else {
 			warningLog("Receive unknown request type", nil)
 		}
