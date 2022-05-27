@@ -25,11 +25,19 @@ func closeRabbitMQ() {
     infoLog("Successfully close RabbitMQ connection", nil)
 }
 
-func getRequestType(msg amqp.Delivery) string {
-    var bodyJson map[string]interface{}
+func parseMessageBody(msg amqp.Delivery) (map[string]interface{}) {
+	var bodyJson map[string]interface{}
     err := json.Unmarshal(msg.Body, &bodyJson)
-    failLog(err, "Failed to parse message body")
-    return bodyJson["query_type"].(string)
+    errorLog(err, "Failed to parse message body")
+    return bodyJson
+}
+
+func getRequestType(msg amqp.Delivery) string {
+	bodyJson := parseMessageBody(msg)
+	if val, ok := bodyJson["query_type"]; ok {
+		return val.(string)
+	}
+	return ""
 }
 
 func readMessage() {
@@ -68,6 +76,8 @@ func readMessage() {
             infoLog("Download request", nil)
         } else if requestType == "compress" {
             infoLog("Compress request", nil)
-        }
+        } else {
+			warningLog("Receive unknown request type", nil)
+		}
     }
 }

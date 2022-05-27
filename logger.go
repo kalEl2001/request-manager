@@ -50,13 +50,25 @@ func createLog(level string, message string, fields map[string]interface{}) {
 	}
 }
 
-func failLog(err error, msg string) {
-    if err != nil {
+func createErrorLog(level string, err error, msg string) {
+	if err != nil {
         field := map[string]interface{}{
             "error_msg": err,
         }
-        createLog("Panic", msg, field)
+        createLog(level, msg, field)
     }
+}
+
+func failLog(err error, msg string) {
+    createErrorLog("Panic", err, msg)
+}
+
+func errorLog(err error, msg string) {
+	createErrorLog("Error", err, msg)
+}
+
+func warningLog(msg string, field map[string]interface{}) {
+	createLog("Warn", msg, field)
 }
 
 func infoLog(msg string, field map[string]interface{}) {
