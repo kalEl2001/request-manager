@@ -11,21 +11,20 @@ import (
 var logger *logrus.Logger
 
 func initLogger() {
-	LOGSTASH_TCP := os.Getenv("LOGSTASH_URL")
-	if len(LOGSTASH_TCP) == 0 {
-		LOGSTASH_TCP = "elk.faishol.net:5000"
-	}
-
 	logger = logrus.New()
-    conn, err := net.Dial("tcp", LOGSTASH_TCP) 
-    if err != nil {
-        logger.Fatal(err)
-    }
-    hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{
-		"type": "logs",
-		"service": "request manager",
-	}))
-    logger.Hooks.Add(hook)
+
+	LOGSTASH_TCP := os.Getenv("LOGSTASH_URL")
+	if len(LOGSTASH_TCP) != 0 {
+		conn, err := net.Dial("tcp", LOGSTASH_TCP) 
+		if err != nil {
+			logger.Fatal(err)
+		}
+		hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{
+			"type": "logs",
+			"service": "request manager",
+		}))
+		logger.Hooks.Add(hook)
+	}
 }
 
 func createLog(level string, message string, fields map[string]interface{}) {

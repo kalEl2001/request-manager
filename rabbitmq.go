@@ -13,7 +13,7 @@ var rabbitChannel *amqp.Channel
 func initRabbitMQ() {
 	RABBITMQ_URL := os.Getenv("RABBITMQ_URL")
 	if len(RABBITMQ_URL) == 0 {
-		RABBITMQ_URL = "amqp://osmium:osmium12345678@rabbitmq.faishol.net:5672"
+		RABBITMQ_URL = "amqp://localhost:5672"
 	}
 	conn, err := amqp.Dial(RABBITMQ_URL)
 	failLog(err, "Failed to connect to RabbitMQ")
