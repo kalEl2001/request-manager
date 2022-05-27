@@ -8,6 +8,7 @@ import (
 )
 
 var rabbitmq *amqp.Connection
+var rabbitChannel *amqp.Channel
 
 func initRabbitMQ() {
 	RABBITMQ_URL := os.Getenv("RABBITMQ_URL")
@@ -19,6 +20,12 @@ func initRabbitMQ() {
 	infoLog("Successfully connect to RabbitMQ", nil)
 
 	rabbitmq = conn
+
+    ch, err := rabbitmq.Channel()
+    failLog(err, "Failed to open a channel")
+    infoLog("Successfully open a channel in RabbitMQ", nil)
+
+    rabbitChannel = ch
 }
 
 func closeRabbitMQ() {
@@ -42,9 +49,7 @@ func getRequestType(msg amqp.Delivery) string {
 }
 
 func readMessage() {
-    ch, err := rabbitmq.Channel()
-    failLog(err, "Failed to open a channel")
-    infoLog("Successfully open a channel in RabbitMQ", nil)
+    ch := rabbitChannel
 
     queue, err := ch.QueueDeclare(
         "servicemanager_queue",
@@ -85,4 +90,52 @@ func readMessage() {
 			warningLog("Receive unknown request type", nil)
 		}
     }
+}
+
+func publishMessage(route string, body map[string]interface{}, corrId int) {
+    ch := rabbitChannel
+    bodyJson, err := json.Marshal(body)
+    errorLog(err, "Failed to convert map to json")
+
+    err = ch.Publish(
+        "",     // exchange
+        route, // routing key
+        false,  // mandatory
+        false,  // immediate
+        amqp.Publishing {
+            ContentType: "application/json",
+            CorrelationId: strconv.Itoa(corrId),
+            Body:        bodyJson,
+        },
+    )
+
+    errorLog(err, "Failed to publish message")
+}
+
+func createDownloadJobMessage(slug string, link string, fileId uint) {
+    body := map[string]interface{}{
+        "url": link,
+        "folder_out": "/osmium/result/" + slug,
+    }
+    publishMessage("downloader_queue", body, fileId)
+}
+
+func createCompressJobMessage(slug string, reqId uint) {
+    body := map[string]interface{}{
+        "folder": "/osmium/result/" + slug,
+    }
+    publishMessage("compressor_queue", body, reqId)
+}
+
+func updateStatusFileProvider(id uint, props string, data string) {
+    body := map[string]interface{}{
+        "properties": props,
+        "id": id,
+    }
+    if props == "update_progress" {
+        body["progress"] = data
+    } else if props == "update_url" {
+        body["url"] = data
+    }
+    publishMessage("provider_queue", body, 0)
 }

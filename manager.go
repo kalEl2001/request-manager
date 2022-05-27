@@ -1,6 +1,7 @@
 package main
 
 import (
+	"fmt"
 	"github.com/google/uuid"
 )
 
@@ -14,19 +15,23 @@ func createRequest(body map[string]interface{}) {
 	for _, val := range links {
 		tmp := FileQueue{Link: val.(string), Status: false}
 		fileQueues = append(fileQueues, tmp)
-		// TODO: create download job
 	}
-	// TODO: send update to file provider
-
-	dbConn.Create(&Request{
+	
+	req := Request{
 		User: user,
 		Slug: slug,
 		Status: numFile,
 		NumFiles: numFile,
 		Files: fileQueues,
-	})
-	dbConn.Commit()
+	}
+	result := dbConn.Create(&req)
+	errorLog(result.Error, "Failed to create object")
 	infoLog("Receive create request", body)
+
+	for _, val := range req.Files {
+		createDownloadJobMessage(req.Slug, val.Link, val.ID)
+	}
+	updateStatusFileProvider(req.ID, "update_progress", "Starting to download...")
 }
 
 func downloadResponse(id int) {
@@ -42,10 +47,13 @@ func downloadResponse(id int) {
 
 	dbConn.Save(&fileQueue)
 	dbConn.Save(&req)
-	dbConn.Commit()
 
-	// TODO: Send update to file provider
-	// TODO: Check if req.status = 0, then create compress job
+	updateString := fmt.Sprintf("%d of %d file(s) downloaded", req.NumFiles - req.Status, req.NumFiles)
+	updateStatusFileProvider(req.ID, "update_progress", updateString)
+	if req.status == 0 {
+		createCompressJobMessage(req.Slug, req.ID)
+		updateStatusFileProvider(req.ID, "update_progress", "Compressing...")
+	}
 
 	infoLog("Receive download request", map[string]interface{}{"correlationId": id})
 }
@@ -57,9 +65,8 @@ func compressResponse(id int, body map[string]interface{}) {
 	req.OutputPath = body["folder"].(string)
 
 	dbConn.Save(&req)
-	dbConn.Commit()
 
-	// TODO: Send update to file provider
+	updateStatusFileProvider(req.ID, "update_url", req.OutputPath)
 
 	infoLog("Receive compress request", map[string]interface{}{"correlationId": id})
 }
