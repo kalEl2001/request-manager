@@ -7,8 +7,6 @@ func main() {
     migrateDB()
     
     initRabbitMQ()
-
     readMessage()
-
     closeRabbitMQ()
 }
