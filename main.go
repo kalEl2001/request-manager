@@ -1,10 +1,11 @@
 package main
 
 func main() {
+    initLogger()
+
     initDBConnection()
     migrateDB()
     
-    initLogger()
     initRabbitMQ()
 
     readMessage()
