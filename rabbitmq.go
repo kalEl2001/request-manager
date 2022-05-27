@@ -15,7 +15,7 @@ func initRabbitMQ() {
 	}
 	conn, err := amqp.Dial(RABBITMQ_URL)
 	failLog(err, "Failed to connect to RabbitMQ")
-	infoLog("Successfully to connect to RabbitMQ", nil)
+	infoLog("Successfully connect to RabbitMQ", nil)
 
 	rabbitmq = conn
 }
@@ -71,7 +71,7 @@ func readMessage() {
     for msg := range msgs {
         requestType := getRequestType(msg)
         if requestType == "create" {
-            infoLog("Create request", nil)
+            createRequest(parseMessageBody(msg))
         } else if requestType == "download" {
             infoLog("Download request", nil)
         } else if requestType == "compress" {

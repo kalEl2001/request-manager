@@ -10,28 +10,37 @@ type Request struct {
 	gorm.Model
 	User string
 	Slug string
-	Status uint
-	Files []FileQueue `gorm:"constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
+	Status int
+	NumFiles int
+	Files []FileQueue `gorm:"foreignKey:RequestId;constraint:OnUpdate:CASCADE,OnDelete:SET NULL;"`
 }
 
 type FileQueue struct {
 	gorm.Model
 	RequestId uint
-	link string
+	Link string
+	Status bool
 }
 
-func migrateDB() {
+var dbConn *gorm.DB
+
+func initDBConnection() {
 	DB_URL := os.Getenv("DATABASE_URL")
 	if len(DB_URL) == 0 {
 		DB_URL = "data.db"
 	}
+	
 	db, err := gorm.Open(sqlite.Open(DB_URL), &gorm.Config{})
 	if err != nil {
 		failLog(err, "Failed to connect to database")
 	}
+	dbConn = db
 	infoLog("Successfully connect to database", nil)
+}
 
+func migrateDB() {
 	// Migrate the schema
-	db.AutoMigrate(&Request{})
-	db.AutoMigrate(&FileQueue{})
+	dbConn.AutoMigrate(&Request{})
+	dbConn.AutoMigrate(&FileQueue{})
+	infoLog("Successfully migrating database", nil)
 }

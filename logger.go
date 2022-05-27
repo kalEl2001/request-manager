@@ -74,3 +74,7 @@ func warningLog(msg string, field map[string]interface{}) {
 func infoLog(msg string, field map[string]interface{}) {
 	createLog("Info", msg, field)
 }
+
+func debugLog(msg string, field map[string]interface{}) {
+	createLog("Debug", msg, field)
+}

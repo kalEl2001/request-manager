@@ -1,6 +1,7 @@
 package main
 
 func main() {
+    initDBConnection()
     migrateDB()
     
     initLogger()
