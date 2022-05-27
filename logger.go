@@ -8,31 +8,32 @@ import (
     "github.com/sirupsen/logrus"
 )
 
-func initLogger() *logrus.Logger {
+var logger *logrus.Logger
+
+func initLogger() {
 	LOGSTASH_TCP := os.Getenv("LOGSTASH_URL")
 	if len(LOGSTASH_TCP) == 0 {
 		LOGSTASH_TCP = "elk.faishol.net:5000"
 	}
 
-	log := logrus.New()
+	logger = logrus.New()
     conn, err := net.Dial("tcp", LOGSTASH_TCP) 
     if err != nil {
-        log.Fatal(err)
+        logger.Fatal(err)
     }
     hook := logrustash.New(conn, logrustash.DefaultFormatter(logrus.Fields{
 		"type": "logs",
 		"service": "request manager",
 	}))
-    log.Hooks.Add(hook)
-	return log
+    logger.Hooks.Add(hook)
 }
 
-func createLog(log *logrus.Logger, level string, message string, fields map[string]interface{}) {
-	if log == nil {
-		log = initLogger()
+func createLog(level string, message string, fields map[string]interface{}) {
+	if logger == nil {
+		initLogger()
 	}
 
-	ctx := log.WithFields(fields)
+	ctx := logger.WithFields(fields)
 
 	if level == "Warn" {
 		ctx.Warn(message)
@@ -47,4 +48,17 @@ func createLog(log *logrus.Logger, level string, message string, fields map[stri
 	} else if level == "Debug" {
 		ctx.Debug(message)
 	}
+}
+
+func failLog(err error, msg string) {
+    if err != nil {
+        field := map[string]interface{}{
+            "error_msg": err,
+        }
+        createLog("Panic", msg, field)
+    }
+}
+
+func infoLog(msg string, field map[string]interface{}) {
+	createLog("Info", msg, field)
 }

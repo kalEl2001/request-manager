@@ -20,20 +20,16 @@ type FileQueue struct {
 	link string
 }
 
-func MigrateDB() {
+func migrateDB() {
 	DB_URL := os.Getenv("DATABASE_URL")
 	if len(DB_URL) == 0 {
 		DB_URL = "data.db"
 	}
 	db, err := gorm.Open(sqlite.Open(DB_URL), &gorm.Config{})
 	if err != nil {
-		field := map[string]interface{}{
-			"db_url": DB_URL,
-			"error": err,
-		}
-		createLog(nil, "Panic", "Failed to connect to database", field)
+		failLog(err, "Failed to connect to database")
 	}
-	createLog(nil, "Info", "Successfully to connect to database", nil)
+	infoLog("Successfully connect to database", nil)
 
 	// Migrate the schema
 	db.AutoMigrate(&Request{})
