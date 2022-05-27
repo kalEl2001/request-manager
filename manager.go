@@ -62,7 +62,7 @@ func compressResponse(id int, body map[string]interface{}) {
 	var req Request
 	dbConn.Where("id = ?", id).First(&req)
 	req.Status = -1
-	req.OutputPath = body["folder"].(string)
+	req.OutputPath = body["path"].(string)
 
 	dbConn.Save(&req)
 
