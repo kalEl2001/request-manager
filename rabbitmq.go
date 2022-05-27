@@ -104,6 +104,7 @@ func publishMessage(route string, body map[string]interface{}, corrId uint) {
         false,  // immediate
         amqp.Publishing {
             ContentType: "application/json",
+            replyTo: "servicemanager_queue",
             CorrelationId: strconv.FormatUint(uint64(corrId), 10),
             Body:        bodyJson,
         },
