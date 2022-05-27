@@ -2,7 +2,7 @@ FROM golang:1.18-alpine AS build
 
 WORKDIR /app
 RUN apk update \
-    && apk --no-cache --update add build-base
+    && apk --no-cache --update add build-base bind-tools
     
 COPY go.mod ./
 COPY go.sum ./
