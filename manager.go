@@ -67,6 +67,7 @@ func compressResponse(id int, body map[string]interface{}) {
 	dbConn.Save(&req)
 
 	updateStatusFileProvider(req.ID, "update_url", req.OutputPath)
+	updateStatusFileProvider(req.ID, "update_progress", "Ready to download")
 
 	infoLog("Receive compress request", map[string]interface{}{"correlationId": id})
 }
