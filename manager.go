@@ -32,6 +32,7 @@ func createRequest(body map[string]interface{}) {
 		createDownloadJobMessage(req.Slug, val.Link, val.ID)
 	}
 	updateStatusFileProvider(req.ID, "create", req.User)
+	updateStatusFileProvider(req.ID, "update_progress", "Processing...")
 }
 
 func downloadResponse(id int) {
